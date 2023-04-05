@@ -67,7 +67,7 @@ elbow_sensor = ColorSensor(Port.S2)
 #gripper_motor.run_target(200, -90)
 
 
-def calibrate():
+def robot_test():
     elbow_motor.run_angle(60, -40)
     wait(3000)
     elbow_motor.run_angle(60, 40)
@@ -126,8 +126,10 @@ RIGHT = 40
 elbow_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
 elbow_motor.run_angle(60, -40)
 #Calibrating start position for base
-base_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
-
+base_motor.run(-60)
+while not base_switch.pressed(): 
+    wait(100)
+base_motor.hold()
 
 while True:
     robot_test()
