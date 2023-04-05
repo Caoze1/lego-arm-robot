@@ -67,13 +67,11 @@ elbow_sensor = ColorSensor(Port.S2)
 #gripper_motor.run_target(200, -90)
 
 
-def robot_test():
-    elbow_motor.run(15)
-    elbow_motor.hold()
-    elbow_motor.run_target(60, -40)
-    wait(3)
-    elbow_motor.run_target(60, 0)
-    wait(3)
+def calibrate():
+    elbow_motor.run_angle(60, -40)
+    wait(3000)
+    elbow_motor.run_angle(60, 40)
+    wait(3000)
     return
 def robot_pick(position):
     # This function makes the robot base rotate to the indicated
@@ -123,5 +121,13 @@ RIGHT = 40
 #
 # Now we have a wheel stack on the left and on the right as before, but they
 # have switched places. Then the loop repeats to do this over and over.
+
+#Calibrating start position for elbow
+elbow_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
+elbow_motor.run_angle(60, -40)
+#Calibrating start position for base
+base_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
+
+
 while True:
     robot_test()
