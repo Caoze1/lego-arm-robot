@@ -9,6 +9,8 @@ ev3 = EV3Brick()
 ev3.speaker.beep()
 
 GROUND_ANGLE = -117
+MAX_RIGHT_ANGLE = -110
+MAX_LEFT_ANGLE = 110
 gripper_motor = Motor(Port.A)
 
 # Configure the elbow motor. It has an 8-teeth and a 40-teeth gear
@@ -70,7 +72,7 @@ elbow_sensor = ColorSensor(Port.S2)
 
 def downward_stall_angle():
     elbow_motor.run_until_stalled(-70, then=Stop.COAST, duty_limit=10)
-    print(elbow_motor.angle())
+
     return elbow_motor.angle()
 
 def claw_open():
@@ -85,7 +87,12 @@ def reset_elbow():
     elbow_motor.run_target(60, -30)
     elbow_motor.hold()
 
-def pick_up():
+def reset_base():
+    base_motor.run_target(40, 0)
+    base_motor.hold()
+
+def pick_up(base_angle=0):
+    base_motor.run_target(40, base_angle)
     if downward_stall_angle() <= GROUND_ANGLE + 2:
         reset_elbow()
         return
@@ -96,7 +103,8 @@ def pick_up():
         claw_close()
         reset_elbow()
 
-def drop_off():
+def drop_off(base_angle=0):
+    base_motor.run_target(40, base_angle)
     downward_stall_angle()
     claw_open()
     reset_elbow()
@@ -137,13 +145,24 @@ wait(100)
 base_motor.run_angle(40, 115)
 base_motor.reset_angle(0)
 wait(100)
+
+#base_motor.run(-60)
+#while not base_switch.pressed(): 
+#    wait(100)
+#print(base_motor.angle())
+#base_motor.hold()
+#wait(1000)
+#base_motor.run_until_stalled(60, then=Stop.COAST, duty_limit=20)
+#print(base_motor.angle())
+
 #Calibrating start position of claw
 gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
 gripper_motor.reset_angle(0)
 gripper_motor.hold()
 
-pick_up()
+pick_up(-110)
 
 wait(1000)
 
-drop_off()
+drop_off(100)
+reset_base()
