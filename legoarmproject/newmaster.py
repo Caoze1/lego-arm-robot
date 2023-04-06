@@ -125,11 +125,22 @@ RIGHT = 40
 #Calibrating start position for elbow
 elbow_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
 elbow_motor.run_angle(60, -40)
+wait(100)
 #Calibrating start position for base
 base_motor.run(-60)
 while not base_switch.pressed(): 
     wait(100)
 base_motor.hold()
+wait(100)
+base_motor.run_angle(40, 115)
+wait(100)
+#Calibrating start position of claw
+gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
+gripper_motor.reset_angle(0)
+gripper_motor.run_target(200, -90)
+
+
+
 
 while True:
     robot_test()
