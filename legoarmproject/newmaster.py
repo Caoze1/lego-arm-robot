@@ -77,6 +77,10 @@ def claw_open():
     elbow_motor.run_angle(60, 5)
     gripper_motor.hold()
 
+def claw_close():
+    gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
+    gripper_motor.hold()
+
 def pick_up():
     if robot_test() <= GROUND_ANGLE + 5:
         elbow_motor.run_target(60, -60)
