@@ -8,6 +8,7 @@ from pybricks.tools import wait
 ev3 = EV3Brick()
 ev3.speaker.beep()
 
+#Defining angle limits
 GROUND_ANGLE = -117
 MAX_RIGHT_ANGLE = -110
 MAX_LEFT_ANGLE = 110
@@ -93,18 +94,23 @@ def reset_base():
 
 def pick_up(base_angle=0):
     base_motor.run_target(40, base_angle)
+    base_motor.hold()
     if downward_stall_angle() <= GROUND_ANGLE + 2:
         reset_elbow()
-        return
+        print(False)
+        return False
     else:
         elbow_motor.run_angle(60, 50)
         claw_open()
         elbow_motor.run_angle(60, -40)
         claw_close()
         reset_elbow()
+        print(True)
+        return True
 
 def drop_off(base_angle=0):
     base_motor.run_target(40, base_angle)
+    base_motor.hold()
     downward_stall_angle()
     claw_open()
     reset_elbow()
@@ -116,20 +122,6 @@ def drop_off(base_angle=0):
 for i in range(3):
     ev3.speaker.beep()
     wait(100)
-
-# Define the three destinations for picking up and moving the wheel stacks.
-LEFT = 160
-MIDDLE = 100
-RIGHT = 40
-
-# This is the main part of the program. It is a loop that repeats endlessly.
-#
-# First, the robot moves the object on the left towards the middle.
-# Second, the robot moves the object on the right towards the left.
-# Finally, the robot moves the object that is now in the middle, to the right.
-#
-# Now we have a wheel stack on the left and on the right as before, but they
-# have switched places. Then the loop repeats to do this over and over.
 
 #Calibrating start position for elbow
 elbow_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=30)
@@ -160,9 +152,10 @@ gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
 gripper_motor.reset_angle(0)
 gripper_motor.hold()
 
-pick_up(-110)
+while not pick_up(-95):
+    print("hello")
 
 wait(1000)
 
-drop_off(100)
+drop_off(80)
 reset_base()
