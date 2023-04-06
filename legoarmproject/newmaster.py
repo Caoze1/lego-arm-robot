@@ -8,6 +8,7 @@ from pybricks.tools import wait
 ev3 = EV3Brick()
 ev3.speaker.beep()
 
+GROUND_ANGLE = -117
 gripper_motor = Motor(Port.A)
 
 # Configure the elbow motor. It has an 8-teeth and a 40-teeth gear
@@ -68,40 +69,8 @@ elbow_sensor = ColorSensor(Port.S2)
 
 
 def robot_test():
-    elbow_motor.run_angle(60, -40)
-    wait(3000)
-    elbow_motor.run_angle(60, 40)
-    wait(3000)
-    return
-def robot_pick(position):
-    # This function makes the robot base rotate to the indicated
-    # position. There it lowers the elbow, closes the gripper, and
-    # raises the elbow to pick up the object.
-
-    # Rotate to the pick-up position.
-    base_motor.run_target(60, position)
-    # Lower the arm.
-    elbow_motor.run_target(60, -40)
-    # Close the gripper to grab the wheel stack.
-    gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
-    # Raise the arm to lift the wheel stack.
-    elbow_motor.run_target(60, 0)
-
-
-def robot_release(position):
-    # This function makes the robot base rotate to the indicated
-    # position. There it lowers the elbow, opens the gripper to
-    # release the object. Then it raises its arm again.
-
-    # Rotate to the drop-off position.
-    base_motor.run_target(60, position)
-    # Lower the arm to put the wheel stack on the ground.
-    elbow_motor.run_target(60, -40)
-    # Open the gripper to release the wheel stack.
-    gripper_motor.run_target(200, -90)
-    # Raise the arm.
-    elbow_motor.run_target(60, 0)
-
+    elbow_motor.run_until_stalled(-70, then=Stop.COAST, duty_limit=10)
+    return elbow_motor.angle()
 
 # Play three beeps to indicate that the initialization is complete.
 for i in range(3):
@@ -123,8 +92,9 @@ RIGHT = 40
 # have switched places. Then the loop repeats to do this over and over.
 
 #Calibrating start position for elbow
-elbow_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
-elbow_motor.run_angle(60, -40)
+elbow_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=30)
+elbow_motor.hold()
+elbow_motor.reset_angle(0)
 wait(100)
 #Calibrating start position for base
 base_motor.run(-60)
@@ -133,14 +103,11 @@ while not base_switch.pressed():
 base_motor.hold()
 wait(100)
 base_motor.run_angle(40, 115)
+base_motor.reset_angle(0)
 wait(100)
 #Calibrating start position of claw
 gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
 gripper_motor.reset_angle(0)
-gripper_motor.run_target(200, -90)
+gripper_motor.hold()
 
-
-
-
-while True:
-    robot_test()
+print(robot_test())
