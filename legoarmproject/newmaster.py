@@ -153,7 +153,7 @@ gripper_motor.reset_angle(0)
 gripper_motor.hold()
 
 while not pick_up(-95):
-    print("hello")
+    print("Nothing to pickup")
 
 wait(1000)
 
