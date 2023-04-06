@@ -74,7 +74,6 @@ def downward_stall_angle():
     return elbow_motor.angle()
 
 def claw_open():
-    elbow_motor.run_angle(60, 50)
     gripper_motor.run_target(200, -90)
     gripper_motor.hold()
 
@@ -91,11 +90,17 @@ def pick_up():
         reset_elbow()
         return
     else:
+        elbow_motor.run_angle(60, 50)
         claw_open()
         elbow_motor.run_angle(60, -40)
         claw_close()
         reset_elbow()
-        
+
+def drop_off():
+    downward_stall_angle()
+    claw_open()
+    reset_elbow()
+    claw_close()
     
 
 
@@ -139,4 +144,6 @@ gripper_motor.hold()
 
 pick_up()
 
-wait(10000)
+wait(1000)
+
+drop_off()
