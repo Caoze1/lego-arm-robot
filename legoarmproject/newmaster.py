@@ -68,23 +68,33 @@ elbow_sensor = ColorSensor(Port.S2)
 #gripper_motor.run_target(200, -90)
 
 
-def robot_test():
+def downward_stall_angle():
     elbow_motor.run_until_stalled(-70, then=Stop.COAST, duty_limit=10)
+    print(elbow_motor.angle())
     return elbow_motor.angle()
 
 def claw_open():
+    elbow_motor.run_angle(60, 50)
     gripper_motor.run_target(200, -90)
-    elbow_motor.run_angle(60, 5)
     gripper_motor.hold()
 
 def claw_close():
     gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
     gripper_motor.hold()
 
+def reset_elbow():
+    elbow_motor.run_target(60, -30)
+    elbow_motor.hold()
+
 def pick_up():
-    if robot_test() <= GROUND_ANGLE + 5:
-        elbow_motor.run_target(60, -60)
+    if downward_stall_angle() <= GROUND_ANGLE + 2:
+        reset_elbow()
+        return
     else:
+        claw_open()
+        elbow_motor.run_angle(60, -40)
+        claw_close()
+        reset_elbow()
         
     
 
@@ -127,4 +137,6 @@ gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
 gripper_motor.reset_angle(0)
 gripper_motor.hold()
 
-print(robot_test())
+pick_up()
+
+wait(10000)
