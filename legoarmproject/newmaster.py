@@ -72,6 +72,19 @@ def robot_test():
     elbow_motor.run_until_stalled(-70, then=Stop.COAST, duty_limit=10)
     return elbow_motor.angle()
 
+def claw_open():
+    gripper_motor.run_target(200, -90)
+    elbow_motor.run_angle(60, 5)
+    gripper_motor.hold()
+
+def pick_up():
+    if robot_test() <= GROUND_ANGLE + 5:
+        elbow_motor.run_target(60, -60)
+    else:
+        
+    
+
+
 # Play three beeps to indicate that the initialization is complete.
 for i in range(3):
     ev3.speaker.beep()
