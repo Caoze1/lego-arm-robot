@@ -76,11 +76,11 @@ def downward_stall_angle():
 
     return elbow_motor.angle()
 
-def claw_open():
+def gripper_open():
     gripper_motor.run_target(200, -90)
     gripper_motor.hold()
 
-def claw_close():
+def gripper_close():
     gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
     gripper_motor.hold()
 
@@ -101,20 +101,22 @@ def pick_up(base_angle=0):
         return False
     else:
         elbow_motor.run_angle(60, 50)
-        claw_open()
+        gripper_open()
         elbow_motor.run_angle(60, -40)
-        claw_close()
+        gripper_close()
         reset_elbow()
         print(True)
         return True
 
 def drop_off(base_angle=0):
+    if gripper_motor.angle() <= 5:
+        return
     base_motor.run_target(40, base_angle)
     base_motor.hold()
     downward_stall_angle()
-    claw_open()
+    gripper_open()
     reset_elbow()
-    claw_close()
+    gripper_close()
     
 
 
@@ -147,15 +149,18 @@ wait(100)
 #base_motor.run_until_stalled(60, then=Stop.COAST, duty_limit=20)
 #print(base_motor.angle())
 
-#Calibrating start position of claw
+#Calibrating start position of gripper
 gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
 gripper_motor.reset_angle(0)
 gripper_motor.hold()
 
-while not pick_up(-95):
-    print("Nothing to pickup")
 
-wait(1000)
 
-drop_off(80)
-reset_base()
+while True:
+    pick_up()
+    wait(500)
+    drop_off()
+    wait(500)
+    reset_base()
+
+
