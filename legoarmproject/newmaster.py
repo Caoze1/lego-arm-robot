@@ -52,6 +52,7 @@ def gripper_open():
 def gripper_close():
     gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
     gripper_motor.hold()
+    return gripper_motor.angle()
 
 def reset_elbow():
     elbow_motor.run_target(60, 90)
@@ -123,9 +124,9 @@ gripper_motor.hold()
 
 
 while True:
-    pick_up(-80)
+    pick_up()
     wait(500)
-    drop_off(90)
+    drop_off()
     wait(500)
     reset_base()
 
