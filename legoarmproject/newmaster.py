@@ -28,6 +28,7 @@ base_motor = Motor(Port.C, Direction.COUNTERCLOCKWISE, [12, 36])
 # Limit the elbow and base accelerations. This results in
 # very smooth motion. Like an industrial robot.
 elbow_motor.control.limits(speed=60, acceleration=120)
+elbow_motor.control.stall_tolerances(speed=10, time=100)
 base_motor.control.limits(speed=60, acceleration=120)
 
 # Set up the Touch Sensor. It acts as an end-switch in the base
@@ -39,9 +40,21 @@ base_switch = TouchSensor(Port.S1)
 # white beam up close.
 elbow_sensor = ColorSensor(Port.S2)
 
+def elbow_stall():
+    elbow_motor.run(-10)
+    wait(100)
+    elbow_motor.stop()
+    
+    while elbow_motor.speed() < 0:
+        wait(1000)
+        print(elbow_motor.speed(), elbow_motor.stalled())
+    print(elbow_motor.speed(), elbow_motor.stalled())
+    elbow_motor.hold()
+    return elbow_motor.angle()
+
 
 def downward_stall_angle():
-    elbow_motor.run_until_stalled(-10, then=Stop.COAST, duty_limit=10)
+    elbow_motor.run_until_stalled(-50, then=Stop.HOLD, duty_limit=20)
 
     return elbow_motor.angle()
 
@@ -50,7 +63,7 @@ def gripper_open():
     gripper_motor.hold()
 
 def gripper_close():
-    gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
+    gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
     gripper_motor.hold()
     return gripper_motor.angle()
 
@@ -66,8 +79,8 @@ def pick_up(base_angle=0):
     gripper_open()
     base_motor.run_target(40, base_angle)
     base_motor.hold()
-    downward_stall_angle()
-    elbow_motor.run_angle(60, 25)
+    elbow_stall()
+    elbow_motor.run_angle(60, 18)
 
     gripper_close()
     print(gripper_motor.angle())
@@ -83,7 +96,7 @@ def drop_off(base_angle=0):
     print(gripper_motor.angle())
     base_motor.run_target(40, base_angle)
     base_motor.hold()
-    downward_stall_angle()
+    elbow_stall()
     gripper_open()
     reset_elbow()
     gripper_close()
@@ -96,7 +109,7 @@ for i in range(3):
     wait(100)
 
 #Calibrating start position for elbow
-elbow_motor.run_until_stalled(-50, then=Stop.COAST, duty_limit=13)
+elbow_stall()
 elbow_motor.hold()
 elbow_motor.reset_angle(0)
 GROUND_ANGLE = elbow_motor.angle()
@@ -115,7 +128,7 @@ base_motor.reset_angle(0)
 wait(100)
 
 #Calibrating start position of gripper
-gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
+gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
 gripper_motor.reset_angle(0)
 gripper_motor.hold()
 
@@ -123,9 +136,5 @@ gripper_motor.hold()
 
 while True:
     pick_up()
-    wait(5000)
+    wait(5000) 
     drop_off()
-    wait(500)
-    reset_base()
-
-
