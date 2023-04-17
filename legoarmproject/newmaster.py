@@ -41,7 +41,7 @@ elbow_sensor = ColorSensor(Port.S2)
 
 
 def downward_stall_angle():
-    elbow_motor.run_until_stalled(-50, then=Stop.COAST, duty_limit=13)
+    elbow_motor.run_until_stalled(-10, then=Stop.COAST, duty_limit=10)
 
     return elbow_motor.angle()
 
@@ -63,20 +63,18 @@ def reset_base():
     base_motor.hold()
 
 def pick_up(base_angle=0):
+    gripper_open()
     base_motor.run_target(40, base_angle)
     base_motor.hold()
-    if downward_stall_angle() <= GROUND_ANGLE + 2:
-        reset_elbow()
-        print(elbow_motor.angle())
-        return False
-    else:
-        elbow_motor.run_angle(60, 50)
-        gripper_open()
-        elbow_motor.run_angle(60, -40)
-        gripper_close()
-        reset_elbow()
-        print(elbow_motor.angle())
-        return True
+    downward_stall_angle()
+    elbow_motor.run_angle(60, 25)
+
+    gripper_close()
+    print(gripper_motor.angle())
+
+    reset_elbow()
+    print(elbow_motor.angle())
+    return True
 
 def drop_off(base_angle=0):
     if gripper_motor.angle() >= -3:
@@ -125,7 +123,7 @@ gripper_motor.hold()
 
 while True:
     pick_up()
-    wait(500)
+    wait(5000)
     drop_off()
     wait(500)
     reset_base()
