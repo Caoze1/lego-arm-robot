@@ -129,5 +129,6 @@ while True:
     drop_off()
     wait(500)
     reset_base()
+    print("testt")
 
 
