@@ -1,7 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor
-from pybricks.parameters import Port, Stop, Direction
+from pybricks.parameters import Port, Stop, Direction , SoundFile , Color
 from pybricks.tools import wait
 
 # Initialize the EV3 Brick
@@ -28,7 +28,6 @@ base_motor = Motor(Port.C, Direction.COUNTERCLOCKWISE, [12, 36])
 # Limit the elbow and base accelerations. This results in
 # very smooth motion. Like an industrial robot.
 elbow_motor.control.limits(speed=60, acceleration=120)
-elbow_motor.control.stall_tolerances(speed=10, time=100)
 base_motor.control.limits(speed=60, acceleration=120)
 
 # Set up the Touch Sensor. It acts as an end-switch in the base
@@ -41,20 +40,19 @@ base_switch = TouchSensor(Port.S1)
 elbow_sensor = ColorSensor(Port.S2)
 
 def elbow_stall():
-    elbow_motor.run(-10)
-    wait(100)
+    elbow_motor.run(-30)
+    wait(1000)
     elbow_motor.stop()
-    
     while elbow_motor.speed() < 0:
-        wait(1000)
         print(elbow_motor.speed(), elbow_motor.stalled())
+    
     print(elbow_motor.speed(), elbow_motor.stalled())
     elbow_motor.hold()
     return elbow_motor.angle()
 
 
 def downward_stall_angle():
-    elbow_motor.run_until_stalled(-50, then=Stop.HOLD, duty_limit=20)
+    elbow_motor.run_until_stalled(-20, then=Stop.HOLD, duty_limit=10)
 
     return elbow_motor.angle()
 
@@ -75,28 +73,74 @@ def reset_base():
     base_motor.run_target(40, 0)
     base_motor.hold()
 
-def pick_up(base_angle=0):
+def colorcheck():
+    elbow_motor.run_angle(60, 30)
+    elbow_motor.hold()
+    wait(250)
+    color_1 = str(elbow_sensor.color())
+    print(elbow_sensor.color())
+    ev3.speaker.beep()
+    wait(500)
+    return color_1
+
+def pick_up(base_angle=-100, color=False):
     gripper_open()
     base_motor.run_target(40, base_angle)
     base_motor.hold()
-    elbow_stall()
-    elbow_motor.run_angle(60, 18)
+    downward_stall_angle()
+    elbow_motor.run_angle(60, 17)
 
     gripper_close()
+    if color and gripper_motor.angle() <= -5 :
+        print("HEJ")
+        color = colorcheck()
     print(gripper_motor.angle())
 
     reset_elbow()
     print(elbow_motor.angle())
-    return True
+    return (True, color)
+
+def drop_off_position(block_color):
+    drop_off_1 = 0
+    drop_off_2 = 55
+    drop_off_3 = 100
+    if block_color == "Color.BLUE":
+        ev3.speaker.say('blue')
+        return 55
+
+    elif block_color == "Color.GREEN":
+        ev3.speaker.say('green')
+        return 100
+
+    elif block_color == "Color.YELLOW":
+        ev3.speaker.say('yellow')
+        return 0
+
+    elif block_color == "Color.RED":
+        ev3.speaker.say('red')
+        return 55
+
+    elif block_color == "Color.BLACK":
+        ev3.speaker.say('black')
+        return 0
+
+    elif block_color == "Color.WHITE":
+        ev3.speaker.say('white')
+        return 100
+
+    elif block_color == "Color.BROWN":
+        ev3.speaker.say('brown')
+        return 0
+    return -100
 
 def drop_off(base_angle=0):
-    if gripper_motor.angle() >= -3:
+    if gripper_motor.angle() >= -5:
         print(gripper_motor.angle())
         return
     print(gripper_motor.angle())
     base_motor.run_target(40, base_angle)
     base_motor.hold()
-    elbow_stall()
+    downward_stall_angle()
     gripper_open()
     reset_elbow()
     gripper_close()
@@ -109,7 +153,7 @@ for i in range(3):
     wait(100)
 
 #Calibrating start position for elbow
-elbow_stall()
+downward_stall_angle()
 elbow_motor.hold()
 elbow_motor.reset_angle(0)
 GROUND_ANGLE = elbow_motor.angle()
@@ -135,6 +179,6 @@ gripper_motor.hold()
 
 
 while True:
-    pick_up()
-    wait(5000) 
-    drop_off()
+    color = pick_up(color=True)[1]
+    wait(1000)
+    drop_off(drop_off_position(color))
