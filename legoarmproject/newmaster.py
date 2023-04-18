@@ -74,7 +74,7 @@ def reset_base():
     base_motor.hold()
 
 def colorcheck():
-    elbow_motor.run_angle(60, 30)
+    elbow_motor.run_target(60, 45)
     elbow_motor.hold()
     wait(250)
     color_1 = str(elbow_sensor.color())
