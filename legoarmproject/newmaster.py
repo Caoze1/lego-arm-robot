@@ -77,11 +77,24 @@ def colorcheck():
     elbow_motor.run_target(60, 45)
     elbow_motor.hold()
     wait(250)
-    color_1 = str(elbow_sensor.color())
+    color_1 = elbow_sensor.rgb()
     print(elbow_sensor.color())
+    print(elbow_sensor.rgb())
+    color_1= get_color_name(color_1)
+    print(color_1)
     ev3.speaker.beep()
-    wait(500)
     return color_1
+
+def get_color_name(rgb_tuple):
+    
+    if rgb_tuple[0] < 4 and rgb_tuple[2] <= 9:
+        return "green"
+    if rgb_tuple[0] < 4 and rgb_tuple[2] > 9:
+        return "blue"
+    if rgb_tuple[0] >= 4 and rgb_tuple[1] >= 5:
+        return "yellow"
+    if rgb_tuple[0] >= 4 and rgb_tuple[1] < 5:
+        return "red"
 
 def pick_up(base_angle=-100, color=False):
     gripper_open()
@@ -92,8 +105,8 @@ def pick_up(base_angle=-100, color=False):
 
     gripper_close()
     if color and gripper_motor.angle() <= -5 :
-        print("HEJ")
         color = colorcheck()
+        
     print(gripper_motor.angle())
 
     reset_elbow()
@@ -101,43 +114,31 @@ def pick_up(base_angle=-100, color=False):
     return (True, color)
 
 def drop_off_position(block_color):
-    drop_off_1 = 0
-    drop_off_2 = 55
-    drop_off_3 = 100
-    if block_color == "Color.BLUE":
+    if block_color == "blue":
         ev3.speaker.say('blue')
+        #45 grader vinkeln
         return 55
 
-    elif block_color == "Color.GREEN":
+    elif block_color == "green":
         ev3.speaker.say('green')
+        #mittemot pick-up
         return 100
 
-    elif block_color == "Color.YELLOW":
+    elif block_color == "yellow":
         ev3.speaker.say('yellow')
+        #rakt fram
         return 0
 
-    elif block_color == "Color.RED":
+    elif block_color == "red":
         ev3.speaker.say('red')
+        #45 grader vinkel
         return 55
 
-    elif block_color == "Color.BLACK":
-        ev3.speaker.say('black')
-        return 0
-
-    elif block_color == "Color.WHITE":
-        ev3.speaker.say('white')
-        return 100
-
-    elif block_color == "Color.BROWN":
-        ev3.speaker.say('brown')
-        return 0
     return -100
 
 def drop_off(base_angle=0):
     if gripper_motor.angle() >= -5:
-        print(gripper_motor.angle())
         return
-    print(gripper_motor.angle())
     base_motor.run_target(40, base_angle)
     base_motor.hold()
     downward_stall_angle()
@@ -180,5 +181,5 @@ gripper_motor.hold()
 
 while True:
     color = pick_up(color=True)[1]
-    wait(1000)
+    #wait(1000)
     drop_off(drop_off_position(color))
