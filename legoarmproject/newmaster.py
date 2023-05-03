@@ -74,7 +74,7 @@ def reset_base():
     base_motor.hold()
 
 def colorcheck():
-    elbow_motor.run_target(60, 45)
+    elbow_motor.run_target(60, 47)
     elbow_motor.hold()
     wait(250)
     color_1 = elbow_sensor.rgb()
@@ -87,9 +87,9 @@ def colorcheck():
 
 def get_color_name(rgb_tuple):
     
-    if rgb_tuple[0] < 4 and rgb_tuple[2] <= 9:
+    if rgb_tuple[0] < 4 and rgb_tuple[2] <= 7:
         return "green"
-    if rgb_tuple[0] < 4 and rgb_tuple[2] > 9:
+    if rgb_tuple[0] < 4 and rgb_tuple[2] > 7:
         return "blue"
     if rgb_tuple[0] >= 4 and rgb_tuple[1] >= 5:
         return "yellow"
@@ -138,6 +138,8 @@ def drop_off_position(block_color):
 
 def drop_off(base_angle=0):
     if gripper_motor.angle() >= -5:
+        ev3.speaker.say('no block')
+        wait(5000)
         return
     base_motor.run_target(40, base_angle)
     base_motor.hold()
