@@ -74,10 +74,6 @@ def reset_elbow():
     elbow_motor.run_target(60, 90)
     elbow_motor.hold()
 
-def reset_base():
-    base_motor.run_target(40, 0)
-    base_motor.hold()
-
 def colorcheck(target = False):
     if target:
         elbow_motor.run_target(60, 45)
@@ -162,17 +158,6 @@ elbow_motor.hold()
 elbow_motor.reset_angle(0)
 GROUND_ANGLE = elbow_motor.angle()
 elbow_motor.run_angle(60, 100)
-wait(100)
-
-
-#Calibrating start position for base
-base_motor.run(-60)
-while not base_switch.pressed(): 
-    wait(100)
-base_motor.hold()
-wait(100)
-base_motor.run_angle(40, 115)
-base_motor.reset_angle(0)
 wait(100)
 
 #Calibrating start position of gripper
