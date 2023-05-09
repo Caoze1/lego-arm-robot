@@ -8,10 +8,15 @@ from pybricks.tools import wait
 ev3 = EV3Brick()
 ev3.speaker.beep()
 
+elbow_positions = []
+base_positions = []
+colors = {}
+
 #Defining angle limits
 MAX_RIGHT_ANGLE = -110
 MAX_LEFT_ANGLE = 110
 gripper_motor = Motor(Port.A)
+
 
 # Configure the elbow motor. It has an 8-teeth and a 40-teeth gear
 # connected to it. We would like positive speed values to make the
@@ -73,9 +78,10 @@ def reset_base():
     base_motor.run_target(40, 0)
     base_motor.hold()
 
-def colorcheck():
-    elbow_motor.run_target(60, 47)
-    elbow_motor.hold()
+def colorcheck(target = False):
+    if target:
+        elbow_motor.run_target(60, 47)
+        elbow_motor.hold()
     wait(250)
     color_1 = elbow_sensor.rgb()
     print(elbow_sensor.color())
@@ -88,24 +94,27 @@ def colorcheck():
 def get_color_name(rgb_tuple):
     
     if rgb_tuple[0] < 4 and rgb_tuple[2] <= 7:
+        ev3.speaker.say("green")
         return "green"
     if rgb_tuple[0] < 4 and rgb_tuple[2] > 7:
+        ev3.speaker.say("blue")
         return "blue"
     if rgb_tuple[0] >= 4 and rgb_tuple[1] >= 5:
+        ev3.speaker.say("yellow")
         return "yellow"
     if rgb_tuple[0] >= 4 and rgb_tuple[1] < 5:
+        ev3.speaker.say("red")
         return "red"
 
 def pick_up(base_angle=-100, color=False):
     gripper_open()
-    base_motor.run_target(40, base_angle)
+    base_motor.run_target(40, base_positions[0])
     base_motor.hold()
-    downward_stall_angle()
-    elbow_motor.run_angle(60, 17)
+    elbow_motor.run_target(40, elbow_positions[0])
 
     gripper_close()
     if color and gripper_motor.angle() <= -5 :
-        color = colorcheck()
+        color = colorcheck(target = True)
         
     print(gripper_motor.angle())
 
@@ -113,26 +122,22 @@ def pick_up(base_angle=-100, color=False):
     print(elbow_motor.angle())
     return (True, color)
 
+
 def drop_off_position(block_color):
-    if block_color == "blue":
-        ev3.speaker.say('blue')
+    if block_color == colors.keys()[0]:
+        ev3.speaker.say(colors.keys()[0])
         #45 grader vinkeln
-        return 55
 
-    elif block_color == "green":
-        ev3.speaker.say('green')
+
+    elif block_color == colors.keys()[1]:
+
         #mittemot pick-up
-        return 100
+        return colors.get(colors.keys()[1])
 
-    elif block_color == "yellow":
-        ev3.speaker.say('yellow')
+    elif block_color == colors.keys()[2]:
+        #ev3.speaker.say(colors.keys()[2])
         #rakt fram
-        return 0
-
-    elif block_color == "red":
-        ev3.speaker.say('red')
-        #45 grader vinkel
-        return 55
+        return colors.get(colors.keys()[2])
 
     return -100
 
@@ -179,8 +184,52 @@ gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
 gripper_motor.reset_angle(0)
 gripper_motor.hold()
 
+ev3.buttons.pressed()
+
+while len(elbow_positions) < 3:
+    i = 0
+    try:
+        if str(ev3.buttons.pressed()[0]) == "Button.UP":
+            elbow_motor.run(15)
+        elif str(ev3.buttons.pressed()[0]) == "Button.DOWN":
+            elbow_motor.run(-15)
+        elif str(ev3.buttons.pressed()[0]) == "Button.RIGHT":
+            base_motor.run(-15)
+        elif str(ev3.buttons.pressed()[0]) == "Button.LEFT":
+            base_motor.run(15)
+        elif str(ev3.buttons.pressed()[0]) == "Button.CENTER":
+            elbow_positions.append(elbow_motor.angle())
+            base_positions.append(base_motor.angle())
+            wait(1500)
+            reset_elbow()
+            while True:
+                if i == 0:
+                    i += 1
+                    break
+                print("in color check")
+                wait(100)
+                try:
+                    if str(ev3.buttons.pressed()[0]) == "Button.CENTER":
+                        colors[colorcheck()] = elbow_positions[i]
+                        wait(1500)
+                    elif str(ev3.buttons.pressed()[0]) == "Button.RIGHT":
+                        i += 1
+                        break
+                except:
+                    print("No color")
 
 
+    except:
+        print("Nothng pressed")
+        elbow_motor.hold()
+        base_motor.hold()
+
+
+    print(ev3.buttons.pressed(), colors)
+    wait(100)
+
+
+print(elbow_positions, base_positions)
 while True:
     color = pick_up(color=True)[1]
     #wait(1000)
