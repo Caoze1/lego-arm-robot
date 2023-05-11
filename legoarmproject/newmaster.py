@@ -76,11 +76,10 @@ def reset_elbow():
 
 def colorcheck(target = False):
     if target:
-        elbow_motor.run_target(60, 45)
+        elbow_motor.run_target(60, 42)
         elbow_motor.hold()
     wait(250)
     color_1 = elbow_sensor.rgb()
-    print(elbow_sensor.color())
     print(elbow_sensor.rgb())
     color_1= get_color_name(color_1)
     print(color_1)
@@ -89,22 +88,22 @@ def colorcheck(target = False):
 
 def get_color_name(rgb_tuple):
     
-    if rgb_tuple[0] < 4 and rgb_tuple[2] <= 7:
+    if rgb_tuple[0] < rgb_tuple[1] and rgb_tuple[1] > rgb_tuple[2]:
         ev3.speaker.say("green")
         ev3.screen.clear()
         ev3.screen.draw_text(50, 50, "green", text_color=Color.BLACK, background_color=None)
         return "green"
-    if rgb_tuple[0] < 4 and rgb_tuple[2] > 7:
+    if rgb_tuple[0] < rgb_tuple[2] and rgb_tuple[2] > rgb_tuple[1]:
         ev3.speaker.say("blue")
         ev3.screen.clear()
         ev3.screen.draw_text(50, 50, "blue", text_color=Color.BLACK, background_color=None)
         return "blue"
-    if rgb_tuple[0] >= 4 and rgb_tuple[1] >= 5:
+    if  rgb_tuple[0] > rgb_tuple[1] > rgb_tuple[0]/4 and rgb_tuple[0] > rgb_tuple[2]:
         ev3.speaker.say("yellow")
         ev3.screen.clear()
         ev3.screen.draw_text(50, 50, "yellow", text_color=Color.BLACK, background_color=None)
         return "yellow"
-    if rgb_tuple[0] >= 4 and rgb_tuple[1] < 5:
+    if  rgb_tuple[0] > rgb_tuple[1] < rgb_tuple[0]/4 and rgb_tuple[0] > rgb_tuple[2]:
         ev3.speaker.say("red")
         ev3.screen.clear()
         ev3.screen.draw_text(50, 50, "red", text_color=Color.BLACK, background_color=None)
@@ -119,8 +118,6 @@ def pick_up(base_angle=-100, color=False):
     gripper_close()
     if color and gripper_motor.angle() <= -5 :
         color = colorcheck(target = True)
-        
-    print(gripper_motor.angle())
 
     reset_elbow()
     print(elbow_motor.angle())
@@ -145,7 +142,33 @@ def drop_off(position):
     reset_elbow()
     gripper_close()
     
-
+def Start_timer():
+    wait_time = 0
+    value = True
+    ev3.screen.clear()
+    ev3.screen.draw_text(50, 50, "Enter Time", text_color=Color.BLACK, background_color=None)
+    while value:
+        try:
+            if str(ev3.buttons.pressed()[0]) == "Button.UP":
+                wait_time += 50
+                ev3.screen.clear()
+                ev3.screen.draw_text(50, 50, round(wait_time/1000), text_color=Color.BLACK, background_color=None)
+            elif str(ev3.buttons.pressed()[0]) == "Button.DOWN":
+                if wait_time <= 0:
+                    wait_time = 0
+                    ev3.screen.clear()
+                    ev3.screen.draw_text(50, 50, round(wait_time/1000), text_color=Color.BLACK, background_color=None)
+                else:
+                    wait_time -= 50
+                    ev3.screen.clear()
+                    ev3.screen.draw_text(50, 50, round(wait_time/1000), text_color=Color.BLACK, background_color=None)
+            elif str(ev3.buttons.pressed()[0]) == "Button.CENTER":
+                value = False
+        except: 
+            elbow_motor.hold()
+            base_motor.hold()
+        print(wait_time/1000)
+    return round(wait_time/1000) * 1000
 
 # Play three beeps to indicate that the initialization is complete.
 for i in range(3):
@@ -170,13 +193,13 @@ i = 0
 while len(elbow_positions) < 3:
     try:
         if str(ev3.buttons.pressed()[0]) == "Button.UP":
-            elbow_motor.run(15)
+            elbow_motor.run(25)
         elif str(ev3.buttons.pressed()[0]) == "Button.DOWN":
-            elbow_motor.run(-15)
+            elbow_motor.run(-25)
         elif str(ev3.buttons.pressed()[0]) == "Button.RIGHT":
-            base_motor.run(-15)
+            base_motor.run(-40)
         elif str(ev3.buttons.pressed()[0]) == "Button.LEFT":
-            base_motor.run(15)
+            base_motor.run(40)
         elif str(ev3.buttons.pressed()[0]) == "Button.CENTER":
             elbow_positions.append(elbow_motor.angle())
             base_positions.append(base_motor.angle())
@@ -186,7 +209,7 @@ while len(elbow_positions) < 3:
                 if i == 0:
                     i += 1
                     break
-                print("in color check")
+                #print("in color check")
                 wait(100)
                 try:
                     if str(ev3.buttons.pressed()[0]) == "Button.CENTER":
@@ -196,20 +219,21 @@ while len(elbow_positions) < 3:
                         i += 1
                         break
                 except:
-                    print("No color")
-
+                    wait(1)
+                    #print("No color")
 
     except:
-        print("Nothng pressed")
         elbow_motor.hold()
         base_motor.hold()
 
 
-    print(ev3.buttons.pressed(), colors)
+    #print(ev3.buttons.pressed(), colors)
     wait(100)
 
+wait(Start_timer())
+ev3.screen.clear()
 
-print(elbow_positions, base_positions)
+#print(elbow_positions, base_positions)
 while True:
     color = pick_up(color=True)[1]
     #wait(1000)
