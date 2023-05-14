@@ -1,24 +1,14 @@
-# PA1473 - Software Development: Agile Project (Template)
-
-## Template information
-This template should help your team write a good readme-file for your project. (The file is called README.md in your project directory.)
-You are of course free to add more sections to your readme if you want to.
-
-Readme-files on GitHub are formatted using Markdown. You can find information about how to format using Markdown here: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
-
-Your readme-file should include the following sections:
-
+# PA1473 - Software Development: Agile Project
 
 ## Introduction
-Lego robot arm which can pick up a big lego block, determine it's color and place at designated drop of position.
-This part should give a general introduction to your project.
+Our project is called lego robot arm and is made with python and an lego ev3 device. The robot can pick up a big lego block, determine it's color and place it at designated drop off location.
 
 
 ## Getting started
 
 This section is supposed to guide a new developer through the steps of how to set up the project and install the deppendencies they need to start developing.
 
-To get started using the lego robot an IDE compatible with pybricks and ev3 is needed if you wish to modify the code. Visual studio code with ev3dev-browser extension and lego mindstorm extension was used in the making of the robot.
+To get started using the lego robot an IDE compatible with pybricks and ev3 is needed if you wish to modify the code. Visual studio code with ev3dev-browser extension and lego mindstorm extension was used in the making of this code.
 Below are all dependencies for the robot:
 
 #!/usr/bin/env pybricks-micropython
@@ -27,17 +17,12 @@ from pybricks.ev3devices import Motor, TouchSensor, ColorSensor
 from pybricks.parameters import Port, Stop, Direction , SoundFile , Color
 from pybricks.tools import wait
 
-It is possible to copy these lines into your project to get started.
+It is possible to copy the above lines of code into your project to get started.
 
 
 ## Building and running
 
-This is where you explain how to make the project run. What is your startup procedure? Does the program accept different arguments to do different things?
-
-You should also describe how to operate your program. Does it need manual input before it starts picking up and sorting the items?
-
-
-The core functionallity of our program are the gripper functions as well as drop off, pick up and color check functions. These lay the foundation for all the base operations the robot can execute. 
+The core functionallity of our program is built on the gripper functions as well as drop off, pick up and color check functions. These lay the foundation for all the base operations the robot can execute. 
 
 Starting the robot will first trigger its calibration state. This is done to get consistent movement throughout different robots. The calibration mainly calibrates the elbow position. 
 
