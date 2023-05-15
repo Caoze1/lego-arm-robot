@@ -45,6 +45,6 @@ The robot will enter a new state after a zone for drop off has been entered. The
 off at specific drop-off zones based on color.
 - [x] US09: As a customer, I want the robot to check the pickup location periodically to see if a new item has
 arrived. 
-- [ ] US10: As a customer, I want the robots to sort items at a specific time. 
+- [x] US10: As a customer, I want the robots to sort items at a specific time. 
 - [ ] US11: As a customer, I want two robots to communicate and work together on items sorting without colliding with each other. 
 - [x] US12: As a customer, I want to be able to manually set the locations and heights of one pick-up zone and two drop-off zones. (Implemented either by manually dragging the arm to a position or using buttons).
